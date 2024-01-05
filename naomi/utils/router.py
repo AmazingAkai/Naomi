@@ -18,8 +18,8 @@ T = TypeVar("T", bound=Callable[..., Any])
 
 
 class Router:
-    def __init__(self, base_route: str) -> None:
-        self.base_route = base_route
+    def __init__(self, base_route: str | None = None) -> None:
+        self.base_route = base_route or ""
         self.routes: list[Route] = []
 
     def route(self, path: str, requires_auth: bool = False, methods: list[str] | None = None) -> Callable[[T], T]:

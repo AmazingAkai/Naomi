@@ -1,0 +1,40 @@
+:root {
+    --primary-background: #2c2e32;
+    --secondary-background: #272727;
+    --text-color: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 10px;
+    font-family: 'Roboto', sans-serif;
+}
+
+main {
+    background-color: var(--primary-background);
+    color: var(--text-color);
+    min-height: 100vh;
+}
+
+nav {
+    background-color: var(--secondary-background);
+    color: var(--text-color);
+    padding: 10px;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+a {
+    text-decoration: none;
+    color: var(--text-color)
+}
+
+footer {
+    background-color: var(--secondary-background);
+    color: var(--text-color);
+}
