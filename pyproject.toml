@@ -2,12 +2,88 @@
 name = "naomi"
 version = "0.1.0"
 description = ""
-authors = ["AmazingAkai <azharmomin420@gmail.com>"]
+authors = ["AmazingAkai <akai.is.amazing@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
+uvicorn = "^0.25.0"
+starlette = "^0.34.0"
+orjson = "^3.9.10"
+python-dotenv = "^1.0.0"
+beanie = "^1.24.0"
 
+[tool.poetry.group.dev.dependencies]
+black = "^23.12.1"
+ruff = "^0.1.11"
+pre-commit = "^3.6.0"
+
+[tool.black]
+line-length = 125
+preview = true
+
+[tool.ruff]
+line-length = 125
+select = [
+    "C4",
+    "F",
+    "G",
+    "I",
+    "PTH",
+    "RUF",
+    "SIM",
+    "TCH",
+    "UP",
+    "W",
+    "PERF",
+    "ANN",
+]
+ignore = [
+    "F401",
+    "F402",
+    "F403",
+    "F405",
+    "PERF203",
+    "PLR2004",
+    "RUF001",
+    "RUF009",
+    "SIM105",
+    "S101",
+    "UP034",
+    "UP038",
+    "ANN101",
+    "ANN102",
+    "ANN401",
+]
+[tool.ruff.isort]
+split-on-trailing-comma = true
+combine-as-imports = true
+
+[tool.ruff.flake8-annotations]
+allow-star-arg-any = true
+
+[tool.ruff.flake8-quotes]
+inline-quotes = "single"
+
+[tool.pyright]
+useLibraryCodeForTypes = true
+typeCheckingMode = "basic"
+pythonVersion = "3.11"
+ignore = []
+strictListInference = true
+strictDictionaryInference = true
+strictSetInference = true
+strictParameterNoneValue = true
+reportMissingImports = "error"
+reportUnusedImport = "error"
+reportUnusedClass = "error"
+reportUnusedFunction = "error"
+reportUnusedVariable = "error"
+reportUnusedExpression = "error"
+reportGeneralTypeIssues = "error"
+reportDuplicateImport = "error"
+reportUntypedFunctionDecorator = "error"
+reportUnnecessaryTypeIgnoreComment = "warning"
 
 [build-system]
 requires = ["poetry-core"]
