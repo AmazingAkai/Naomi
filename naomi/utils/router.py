@@ -2,9 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
+from starlette.exceptions import HTTPException
 from starlette.routing import Route
+from starlette.status import HTTP_401_UNAUTHORIZED
 
 if TYPE_CHECKING:
+    from starlette.requests import Request
+
     from naomi import Naomi
 
 
@@ -18,12 +22,18 @@ class Router:
         self.base_route = base_route
         self.routes: list[Route] = []
 
-    def route(self, path: str, methods: list[str] | None = None) -> Callable[[T], T]:
+    def route(self, path: str, requires_auth: bool = False, methods: list[str] | None = None) -> Callable[[T], T]:
         def decorator(func: T) -> T:
+            async def wrapped_func(request: Request, *args: Any, **kwargs: Any) -> T:
+                if requires_auth and not request.user.is_authenticated:
+                    raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Authentication required")
+
+                return await func(request, *args, **kwargs)
+
             full_path = f"{self.base_route}/{path[1:] if path.startswith('/') else path}"
             route = Route(
                 path=full_path,
-                endpoint=func,
+                endpoint=wrapped_func,
                 methods=methods,
             )
             self.routes.append(route)
@@ -31,23 +41,23 @@ class Router:
 
         return decorator
 
-    def get(self, path: str) -> Callable[[T], T]:
-        return self.route(path, methods=["GET"])
+    def get(self, path: str, requires_auth: bool = False) -> Callable[[T], T]:
+        return self.route(path, requires_auth=requires_auth, methods=["GET"])
 
-    def post(self, path: str) -> Callable[[T], T]:
-        return self.route(path, methods=["POST"])
+    def post(self, path: str, requires_auth: bool = False) -> Callable[[T], T]:
+        return self.route(path, requires_auth=requires_auth, methods=["POST"])
 
-    def put(self, path: str) -> Callable[[T], T]:
-        return self.route(path, methods=["PUT"])
+    def put(self, path: str, requires_auth: bool = False) -> Callable[[T], T]:
+        return self.route(path, requires_auth=requires_auth, methods=["PUT"])
 
-    def delete(self, path: str) -> Callable[[T], T]:
-        return self.route(path, methods=["DELETE"])
+    def delete(self, path: str, requires_auth: bool = False) -> Callable[[T], T]:
+        return self.route(path, requires_auth=requires_auth, methods=["DELETE"])
 
-    def patch(self, path: str) -> Callable[[T], T]:
-        return self.route(path, methods=["PATCH"])
+    def patch(self, path: str, requires_auth: bool = False) -> Callable[[T], T]:
+        return self.route(path, requires_auth=requires_auth, methods=["PATCH"])
 
-    def head(self, path: str) -> Callable[[T], T]:
-        return self.route(path, methods=["HEAD"])
+    def head(self, path: str, requires_auth: bool = False) -> Callable[[T], T]:
+        return self.route(path, requires_auth=requires_auth, methods=["HEAD"])
 
     def mount(self, app: Naomi) -> None:
         app.add_route

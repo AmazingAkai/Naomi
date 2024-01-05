@@ -33,7 +33,7 @@ async def challenges_get(request: Request) -> Response:
     return ORJSONResponse(challenge.to_dict())
 
 
-@router.post("/challenges/{type}")
+@router.post("/challenges/{type}", requires_auth=True)
 async def add_challenge(request: Request) -> Response:
     challenge_type = request.path_params.get("type")
     if not challenge_type or challenge_type not in ("truth", "dare"):
@@ -52,7 +52,7 @@ async def add_challenge(request: Request) -> Response:
     return ORJSONResponse(challenge.to_dict(), status_code=HTTP_201_CREATED)
 
 
-@router.delete("/challenges/{challenge_id}")
+@router.delete("/challenges/{challenge_id}", requires_auth=True)
 async def delete_challenge(request: Request) -> Response:
     challenge_id = int(request.path_params["challenge_id"])
 
@@ -64,7 +64,7 @@ async def delete_challenge(request: Request) -> Response:
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.patch("/challenges/{challenge_id}")
+@router.patch("/challenges/{challenge_id}", requires_auth=True)
 async def update_challenge(request: Request) -> Response:
     challenge_id = int(request.path_params["challenge_id"])
 

@@ -4,6 +4,7 @@ import beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from starlette.applications import Starlette
 
+from naomi.middlewares.auth import AuthenticationMiddleware
 from naomi.models import document_models
 from naomi.routes import mount_routers
 
@@ -16,6 +17,8 @@ class Naomi(Starlette):
         super().__init__(debug=debug)
 
         mount_routers(self)
+
+        self.add_middleware(AuthenticationMiddleware)
 
         self.add_event_handler("startup", self.startup)
         self.add_event_handler("shutdown", self.shutdown)
