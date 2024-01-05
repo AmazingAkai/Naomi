@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .truthordare import Truth
+from .challenges import Challenge
 
 if TYPE_CHECKING:
     from beanie import Document, View
@@ -12,5 +12,5 @@ if TYPE_CHECKING:
 __all__ = ("document_models",)
 
 document_models: DOCUMENT_MODELS = [
-    Truth,
+    Challenge,
 ]
