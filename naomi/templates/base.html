@@ -15,18 +15,36 @@
       href="{{ url_for('static', path='/css/style.css') }}"
       rel="stylesheet"
     />
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script
+      src="https://kit.fontawesome.com/3e458b476d.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
 
   <body>
-    <nav class="navbar">
+    <nav class="nav">
       <a href="/"> <h1>Naomi</h1> </a>
+      {% if request.session.get('user') %}
+      <a href="/logout" class="nav__logout">
+        <img
+          src="{{ request.session['user']['avatar'] }}"
+          alt="User Avatar"
+          class="nav__avatar"
+        />
+        <div class="nav__name">
+          <div>{{ request.session['user']['name'] }}</div>
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+      </a>
+      {% endif %}
     </nav>
 
     <main>{% block content %}{% endblock %}</main>
 
-    <footer>
+    <footer class="footer">
       <p>
-        &copy; 2024 <a href="https://github.com/AmazingAkai/">AmazingAkai</a>
+        &copy; 2024 <a href="https://github.com/AmazingAkai/" target="_blank">AmazingAkai</a>
       </p>
     </footer>
   </body>

@@ -1,7 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container" id="container">
-        Hey {{request.user.is_authenticated}}
+    <style>
+        .container {
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+        }
+        .info {
+            font-size: 1.6rem;
+        }
+    </style>
+    <div class="container">
+        {% if request.session.get('user') %}
+            <div class="info">Hey {{request.session['user']['name']}}</div>
+        {% else %}
+            <div class="info">Please Log In</div>
+        {% endif %}
     </div>
 {% endblock %}
