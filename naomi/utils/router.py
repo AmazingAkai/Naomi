@@ -25,7 +25,7 @@ class Router:
     def route(self, path: str, requires_auth: bool = False, methods: list[str] | None = None) -> Callable[[T], T]:
         def decorator(func: T) -> T:
             async def wrapped_func(request: Request, *args: Any, **kwargs: Any) -> T:
-                if requires_auth and not request.user.is_authenticated:
+                if requires_auth and not request.session.get("user"):
                     raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Authentication required")
 
                 return await func(request, *args, **kwargs)
@@ -33,6 +33,7 @@ class Router:
             full_path = f"{self.base_route}/{path[1:] if path.startswith('/') else path}"
             route = Route(
                 path=full_path,
+                name=full_path,
                 endpoint=wrapped_func,
                 methods=methods,
             )
@@ -60,5 +61,4 @@ class Router:
         return self.route(path, requires_auth=requires_auth, methods=["HEAD"])
 
     def mount(self, app: Naomi) -> None:
-        app.add_route
         app.router.routes.extend(self.routes)

@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container">
-        <h1>Welcome to my website!</h1>
-        <p>This is some content for the index page.</p>
+    <div class="container" id="container">
+        Hey {{request.user.is_authenticated}}
     </div>
 {% endblock %}

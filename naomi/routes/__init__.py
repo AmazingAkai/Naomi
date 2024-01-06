@@ -1,18 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
+from .admin import router as admin_router
 from .challenges import router as challenges_router
-from .users import router as users_router
 
-if TYPE_CHECKING:
-    from naomi import Naomi
-
-__all__ = ("mount_routers",)
+__all__ = ("routers",)
 
 
-def mount_routers(app: Naomi) -> None:
-    routers = (challenges_router, users_router)
-
-    for router in routers:
-        router.mount(app)
+routers = (challenges_router, admin_router)
