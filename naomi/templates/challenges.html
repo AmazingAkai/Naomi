@@ -186,6 +186,7 @@
 
 <script>
   $(document).ready(() => {
+    
     // Form Submit
     $(".challenges-form").submit((event) => {
       event.preventDefault();
@@ -207,6 +208,7 @@
       });
     });
 
+    // Create Challenges
     const createChallenge = (challenge) => {
       const challengeDiv = $("<div></div>").appendTo(".challenges");
       const description = $("<p></p>")
@@ -222,9 +224,8 @@
         .html('<i class="fa fa-trash"></i>')
         .appendTo(challengeDiv);
 
+      // Edit Button Handler
       deleteBtn.on("click", () => {
-
-
 
         deleteBtn.prop("disabled", true);
         editBtn.prop("disabled", true);
@@ -241,8 +242,12 @@
         });
       });
 
+      // Edit Button Handler
       editBtn.on("click", function () {
         const description = challengeDiv.find("p");
+
+        deleteBtn.prop("disabled", true);
+        editBtn.prop("disabled", true);
 
         const editedChallenge = prompt(
           "Edit the challenge:",
