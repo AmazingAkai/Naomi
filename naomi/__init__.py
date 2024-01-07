@@ -7,6 +7,8 @@ import beanie
 from authlib.integrations.starlette_client import OAuth
 from httpx import AsyncClient
 from motor.motor_asyncio import AsyncIOMotorClient
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from starlette.applications import Starlette
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.routing import Mount
@@ -16,6 +18,7 @@ from starlette.templating import Jinja2Templates
 
 from naomi.models import document_models
 from naomi.routes import routers
+from naomi.utils.limiter import limiter
 from naomi.utils.responses import ORJSONResponse
 
 if TYPE_CHECKING:
@@ -40,6 +43,9 @@ class Naomi(Starlette):
             },
         )
         self.templates = Jinja2Templates(directory="naomi/templates")
+
+        self.state.limiter = limiter
+        self.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
 
         self.mount_routers()
         self.setup_oauth()
