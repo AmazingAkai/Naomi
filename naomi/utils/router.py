@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 from starlette.exceptions import HTTPException
+from starlette.responses import RedirectResponse
 from starlette.routing import Route
 from starlette.status import HTTP_401_UNAUTHORIZED
 
@@ -26,7 +27,9 @@ class Router:
         def decorator(func: T) -> T:
             async def wrapped_func(request: Request, *args: Any, **kwargs: Any) -> T:
                 if requires_auth and not request.session.get("user"):
-                    raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Authentication required")
+                    if request.method != "GET":
+                        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Authentication required")
+                    return RedirectResponse("/")  # type: ignore
 
                 return await func(request, *args, **kwargs)
 

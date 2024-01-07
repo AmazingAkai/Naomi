@@ -1,0 +1,238 @@
+{% extends "base.html" %} {% block content %}
+<style>
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 75vh;
+    padding: 10rem 0;
+    gap: 7.5rem;
+  }
+
+  .loading {
+    width: 45px;
+    aspect-ratio: 1;
+    --loader-colour: no-repeat linear-gradient(var(--button-colour) 0 0);
+    background: var(--loader-colour), var(--loader-colour), var(--loader-colour);
+    animation: loading-1 1s infinite, loading-2 1s infinite;
+  }
+
+  @keyframes loading-1 {
+    0%,
+    100% {
+      background-size: 20% 100%;
+    }
+    33%,
+    66% {
+      background-size: 20% 20%;
+    }
+  }
+
+  @keyframes loading-2 {
+    0%,
+    33% {
+      background-position: 0 0, 50% 50%, 100% 100%;
+    }
+    66%,
+    100% {
+      background-position: 100% 0, 50% 50%, 0 100%;
+    }
+  }
+
+  .challenges-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.6rem;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .challenges-form {
+      flex-direction: column;
+    }
+  }
+
+  .challenges-form > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.6rem;
+  }
+
+  .challenge-type,
+  .challenge-input {
+    padding: 0.85rem 1.5rem;
+    font-size: 1.5rem;
+    outline: 0px;
+    color: var(--text-colour);
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    border: 1px solid rgba(30, 31, 34, 0.5);
+  }
+
+  .challenge-input {
+    min-width: 50rem;
+  }
+
+  .challenge-type:hover {
+    cursor: pointer;
+  }
+
+  .challenge-type > option {
+    color: var(--text-colour);
+    background-color: #000000;
+  }
+
+  .challenges-form button {
+    background-color: var(--button-colour);
+    color: var(--text-colour);
+    padding: 0.85rem 1.5rem;
+    font-size: 1.5rem;
+    transition: background-color 0.3s ease-in-out;
+    border-radius: 0.3rem;
+    border: none;
+  }
+
+  .challenges-form button:hover {
+    cursor: pointer;
+    opacity: 0.7;
+  }
+
+  .challenges {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .challenges {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media only screen and (max-width: 480px) {
+    .challenges {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  }
+
+  .challenges > p {
+    font-size: 2rem;
+    font-weight: bold;
+    user-select: none;
+  }
+
+  .challenges > div {
+    background-color: var(--secondary-background);
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  .challenges > div p {
+    margin: 0;
+    flex: 1;
+    margin-right: 10px;
+  }
+
+  .challenges > div button {
+    color: white;
+    border-radius: 4px;
+    padding: 5px;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+    margin-right: 5px;
+  }
+
+  .challenges > div .delete-btn {
+    background-color: var(--danger-colour);
+  }
+
+  .challenges > div .edit-btn {
+    background-color: var(--button-colour);
+  }
+</style>
+<div class="container">
+  <form class="challenges-form">
+    <input
+      type="text"
+      class="challenge-input"
+      placeholder="Enter a challenge"
+      required
+    />
+    <div>
+      <select class="challenge-type" required>
+        <option value="truth">Truth</option>
+        <option value="dare">Dare</option>
+      </select>
+      <button type="submit">Create</button>
+    </div>
+  </form>
+
+  <div class="loading"></div>
+</div>
+
+<script>
+  $(".challenges-form").submit((event) => {
+    event.preventDefault();
+
+    const challengeType = $(".challenge-type").val();
+    const challenge = $(".challenge-input").val();
+
+    $.ajax({
+      url: `/api/challenges/${challengeType}`,
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({ challenge }),
+      success: function (data) {
+        location.reload();
+      },
+      error: function (error) {
+        console.error("Error submitting challenge:", error);
+      },
+    });
+  });
+
+  $(document).ready(() => {
+    $.ajax({
+      url: "/api/challenges",
+      method: "GET",
+      success: (data) => {
+        $(".loading").removeClass("loading").addClass("challenges");
+
+        if (data.challenges.length > 0) {
+          data.challenges.forEach((challenge) => {
+            const challengeDiv = $("<div></div>").appendTo(".challenges");
+            const description = $("<p></p>")
+              .text(challenge.challenge)
+              .appendTo(challengeDiv);
+            const editBtn = $("<button></button>")
+              .addClass("edit-btn")
+              .html('<i class="fa fa-edit"></i>')
+              .appendTo(challengeDiv);
+            const deleteBtn = $("<button></button>")
+              .addClass("delete-btn")
+              .html('<i class="fa fa-trash"></i>')
+              .appendTo(challengeDiv);
+          });
+        } else {
+          $(".challenges").append("<p>No Challenges Found</p>");
+        }
+      },
+      error: (error) => {
+        console.error("Error fetching challenges:", error);
+        $(".loading").removeClass("loading").addClass("challenges");
+        $(".challenges").append("<p>An Error Occured.</p>");
+      },
+    });
+  });
+</script>
+{% endblock %}

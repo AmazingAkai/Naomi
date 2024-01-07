@@ -1,8 +1,10 @@
 :root {
   --primary-background: #2c2e32;
   --secondary-background: #272727;
-  --text-color: #ffffff;
+  --text-colour: #ffffff;
   --secondary-text: #ffffff80;
+  --button-colour: #5865f2;
+  --danger-colour: #e74c3c;
 }
 
 * {
@@ -18,8 +20,8 @@ html {
 
 main {
   background-color: var(--primary-background);
-  color: var(--text-color);
-  min-height: 100vh;
+  color: var(--text-colour);
+  min-height: calc(100vh - calc(76px + 64px));
 }
 
 /* Navbar */
@@ -29,7 +31,7 @@ main {
   justify-content: space-between;
   align-items: center;
   background-color: var(--secondary-background);
-  color: var(--text-color);
+  color: var(--text-colour);
   padding: 2rem;
   font-size: 2rem;
   font-weight: 700;
@@ -37,7 +39,22 @@ main {
 
 .nav a {
   text-decoration: none;
-  color: var(--text-color);
+  color: var(--text-colour);
+}
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;  
+  font-weight: lighter;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+}
+
+.nav__links a:hover {
+  text-decoration: underline;
+  opacity: 0.7;
 }
 
 .nav__logout {
@@ -71,14 +88,14 @@ main {
 
 .footer {
   background-color: var(--secondary-background);
-  color: var(--text-color);
+  color: var(--text-colour);
   padding: 20px;
   text-align: center;
   font-size: 2rem;
 }
 
 .footer a {
-  color: var(--text-color);
+  color: var(--text-colour);
   text-decoration: none;
 }
 

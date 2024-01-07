@@ -26,6 +26,10 @@
     <nav class="nav">
       <a href="/"> <h1>Naomi</h1> </a>
       {% if request.session.get('user') %}
+      <div class="nav__links">
+        <a href="/challenges">Challenges</a>
+        <a href="/actions">Actions</a>
+      </div>
       <a href="/logout" class="nav__logout">
         <img
           src="{{ request.session['user']['avatar'] }}"
@@ -44,7 +48,10 @@
 
     <footer class="footer">
       <p>
-        &copy; 2024 <a href="https://github.com/AmazingAkai/" target="_blank">AmazingAkai</a>
+        &copy; 2024
+        <a href="https://github.com/AmazingAkai/" target="_blank"
+          >AmazingAkai</a
+        >
       </p>
     </footer>
   </body>

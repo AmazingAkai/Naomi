@@ -33,6 +33,16 @@ async def challenges_get(request: Request) -> Response:
     return ORJSONResponse(challenge.to_dict())
 
 
+@router.get("/challenges", requires_auth=True)
+async def challenges_get_all(request: Request) -> Response:
+    challenges = await Challenge.find().to_list()
+
+    if not challenges:
+        return Response(status_code=HTTP_204_NO_CONTENT)
+
+    return ORJSONResponse({"challenges": [challenge.to_dict() for challenge in challenges]})
+
+
 @router.post("/challenges/{type}", requires_auth=True)
 async def add_challenge(request: Request) -> Response:
     challenge_type = request.path_params.get("type")

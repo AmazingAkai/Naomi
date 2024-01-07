@@ -13,5 +13,10 @@ router = Router()
 
 
 @router.get("/")
-async def home_page(request: Request) -> Response:
+async def home(request: Request) -> Response:
     return request.app.templates.TemplateResponse(request, "index.html")
+
+
+@router.get("/challenges", requires_auth=True)
+async def challges(request: Request) -> Response:
+    return request.app.templates.TemplateResponse(request, "challenges.html")

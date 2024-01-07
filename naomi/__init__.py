@@ -11,13 +11,17 @@ from starlette.applications import Starlette
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.routing import Mount
 from starlette.staticfiles import StaticFiles
+from starlette.status import HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
 from starlette.templating import Jinja2Templates
 
 from naomi.models import document_models
 from naomi.routes import routers
+from naomi.utils.responses import ORJSONResponse
 
 if TYPE_CHECKING:
     from authlib.integrations.starlette_client import StarletteOAuth2App
+    from starlette.requests import Request
+    from starlette.responses import Response
 
 
 class Naomi(Starlette):
@@ -27,7 +31,14 @@ class Naomi(Starlette):
 
     def __init__(self) -> None:
         debug = bool(os.environ.get("DEBUG", False))
-        super().__init__(debug=debug, routes=[Mount("/static", StaticFiles(directory="naomi/static"), name="static")])
+        super().__init__(
+            debug=debug,
+            routes=[Mount("/static", StaticFiles(directory="naomi/static"), name="static")],
+            exception_handlers={
+                HTTP_404_NOT_FOUND: self.handle_not_found,
+                HTTP_500_INTERNAL_SERVER_ERROR: self.handle_internal_server_error,
+            },
+        )
         self.templates = Jinja2Templates(directory="naomi/templates")
 
         self.mount_routers()
@@ -62,6 +73,16 @@ class Naomi(Starlette):
             server_metadata_url=None,
             client_kwargs={"scope": "identify"},
         )
+
+    def handle_not_found(self, request: Request, exception: Exception) -> Response:
+        if request.method != "GET":
+            return ORJSONResponse({"error": "404: Not Found"}, status_code=HTTP_404_NOT_FOUND)
+        return self.templates.TemplateResponse(request, "not-found.html", status_code=HTTP_404_NOT_FOUND)
+
+    def handle_internal_server_error(self, request: Request, exception: Exception) -> Response:
+        if request.method != "GET":
+            return ORJSONResponse({"error": "500: Internal Server Error"}, status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+        return self.templates.TemplateResponse(request, "error.html", status_code=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 app = Naomi()
