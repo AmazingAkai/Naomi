@@ -72,7 +72,13 @@
   }
 
   .challenge-input {
-    min-width: 50rem;
+    min-width: 30rem;
+  }
+
+  @media only screen and (min-width: 768px) {
+    .challenges-input {
+      min-width: 50rem;
+    }
   }
 
   .challenge-type:hover {
@@ -101,20 +107,9 @@
 
   .challenges {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(300px, auto));
+    place-items: center;
     gap: 1.5rem;
-  }
-
-  @media only screen and (max-width: 768px) {
-    .challenges {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media only screen and (max-width: 480px) {
-    .challenges {
-      grid-template-columns: repeat(1, 1fr);
-    }
   }
 
   .challenges > p {
@@ -133,6 +128,12 @@
     justify-content: space-between;
     user-select: none;
     cursor: pointer;
+    transition: all 150ms ease-out;
+  }
+
+  .challenges > div:hover {
+    transform: translateY(-0.5rem);
+    filter: brightness(70%);
   }
 
   .challenges > div p {
@@ -148,8 +149,11 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    transition: color 0.3s ease-in-out;
     margin-right: 5px;
+  }
+
+  .challenges > div button:hover {
+    opacity: 0.7;
   }
 
   .challenges > div .delete-btn {
@@ -181,47 +185,96 @@
 </div>
 
 <script>
-  $(".challenges-form").submit((event) => {
-    event.preventDefault();
-
-    const challengeType = $(".challenge-type").val();
-    const challenge = $(".challenge-input").val();
-
-    $.ajax({
-      url: `/api/challenges/${challengeType}`,
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify({ challenge }),
-      success: function (data) {
-        location.reload();
-      },
-      error: function (error) {
-        console.error("Error submitting challenge:", error);
-      },
-    });
-  });
-
   $(document).ready(() => {
+    // Form Submit
+    $(".challenges-form").submit((event) => {
+      event.preventDefault();
+
+      const challengeType = $(".challenge-type").val();
+      const challenge = $(".challenge-input").val();
+
+      $.ajax({
+        url: `/api/challenges/${challengeType}`,
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ challenge }),
+        success: function (data) {
+          createChallenge(data);
+        },
+        error: function (error) {
+          console.error("Error submitting challenge:", error);
+        },
+      });
+    });
+
+    const createChallenge = (challenge) => {
+      const challengeDiv = $("<div></div>").appendTo(".challenges");
+      const description = $("<p></p>")
+        .text(challenge.challenge)
+        .appendTo(challengeDiv);
+
+      const editBtn = $("<button></button>")
+        .addClass("edit-btn")
+        .html('<i class="fa fa-edit"></i>')
+        .appendTo(challengeDiv);
+      const deleteBtn = $("<button></button>")
+        .addClass("delete-btn")
+        .html('<i class="fa fa-trash"></i>')
+        .appendTo(challengeDiv);
+
+      deleteBtn.on("click", () => {
+
+
+
+        deleteBtn.prop("disabled", true);
+        editBtn.prop("disabled", true);
+
+        $.ajax({
+          url: `/api/challenges/${challenge.id}`,
+          method: "DELETE",
+          success: function (data) {
+            challengeDiv.remove();
+          },
+          error: function (error) {
+            console.error("Error deleting challenge:", error);
+          },
+        });
+      });
+
+      editBtn.on("click", function () {
+        const description = challengeDiv.find("p");
+
+        const editedChallenge = prompt(
+          "Edit the challenge:",
+          description.text()
+        );
+        if (editedChallenge !== null) {
+          $.ajax({
+            url: `/api/challenges/${challenge.id}`,
+            method: "PATCH",
+            contentType: "application/json",
+            data: JSON.stringify({ challenge: editedChallenge }),
+            success: function (data) {
+              description.text(editedChallenge);
+            },
+            error: function (error) {
+              console.error("Error updating challenge:", error);
+            },
+          });
+        }
+      });
+    };
+
+    // Initial Data Fetch
     $.ajax({
       url: "/api/challenges",
       method: "GET",
       success: (data) => {
         $(".loading").removeClass("loading").addClass("challenges");
 
-        if (data.challenges.length > 0) {
+        if (data && data.challenges.length > 0) {
           data.challenges.forEach((challenge) => {
-            const challengeDiv = $("<div></div>").appendTo(".challenges");
-            const description = $("<p></p>")
-              .text(challenge.challenge)
-              .appendTo(challengeDiv);
-            const editBtn = $("<button></button>")
-              .addClass("edit-btn")
-              .html('<i class="fa fa-edit"></i>')
-              .appendTo(challengeDiv);
-            const deleteBtn = $("<button></button>")
-              .addClass("delete-btn")
-              .html('<i class="fa fa-trash"></i>')
-              .appendTo(challengeDiv);
+            createChallenge(challenge);
           });
         } else {
           $(".challenges").append("<p>No Challenges Found</p>");
@@ -230,7 +283,7 @@
       error: (error) => {
         console.error("Error fetching challenges:", error);
         $(".loading").removeClass("loading").addClass("challenges");
-        $(".challenges").append("<p>An Error Occured.</p>");
+        $(".challenges").append("<p>An Error Occurred.</p>");
       },
     });
   });
