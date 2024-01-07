@@ -18,5 +18,10 @@ async def home(request: Request) -> Response:
 
 
 @router.get("/challenges", requires_auth=True)
-async def challges(request: Request) -> Response:
+async def challenges(request: Request) -> Response:
     return request.app.templates.TemplateResponse(request, "challenges.html")
+
+
+@router.get("/actions", requires_auth=True)
+async def actions(request: Request) -> Response:
+    return request.app.templates.TemplateResponse(request, "actions.html")

@@ -24,6 +24,11 @@ main {
   min-height: calc(100vh - calc(76px + 64px));
 }
 
+button:disabled {
+  opacity: 0.5 !important;
+  cursor: wait !important;  
+}
+
 /* Navbar */
 
 .nav {

@@ -4,10 +4,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     min-height: 75vh;
     padding: 10rem 0;
-    gap: 7.5rem;
+    gap: 10rem;
   }
 
   .loading {
@@ -55,12 +55,20 @@
 
   .challenges-form > div {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     gap: 1.6rem;
   }
 
+  @media only screen and (max-width: 768px) {
+    .challenges-form > div {
+      margin: 0 2rem;
+    }
+  }
+
   .challenge-type,
+  .challenge-rating,
   .challenge-input {
     padding: 0.85rem 1.5rem;
     font-size: 1.5rem;
@@ -69,25 +77,29 @@
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     border: 1px solid rgba(30, 31, 34, 0.5);
+    cursor: hover;
   }
 
+  {# I know this is a weird way to do it but yes #}
   .challenge-input {
-    min-width: 30rem;
+    width: 30rem;
+  }
+
+  .challenge-type {
+    width: 30rem;
+  }
+
+  .challenge-rating {
+    width: 21rem;
   }
 
   @media only screen and (min-width: 768px) {
     .challenges-input {
-      min-width: 50rem;
+      width: 50rem;
     }
-  }
-
-  .challenge-type:hover {
-    cursor: pointer;
-  }
-
-  .challenge-type > option {
-    color: var(--text-colour);
-    background-color: #000000;
+    .challenge-type, .challenge-rating {
+      width: auto;
+    }
   }
 
   .challenges-form button {
@@ -129,6 +141,12 @@
     user-select: none;
     cursor: pointer;
     transition: all 150ms ease-out;
+  }
+
+  @media screen and (max-width: 768px) {
+    .challenges > div {
+      margin: 0 1rem;
+    }
   }
 
   .challenges > div:hover {
@@ -176,6 +194,12 @@
       <select class="challenge-type" required>
         <option value="truth">Truth</option>
         <option value="dare">Dare</option>
+        <option value="wyr">Would You Rather</option>
+      </select>
+      <select class="challenge-rating" required>
+        <option value="PG">PG</option>
+        <option value="PG13">PG-13</option>
+        <option value="R">R</option>
       </select>
       <button type="submit">Create</button>
     </div>
@@ -186,19 +210,19 @@
 
 <script>
   $(document).ready(() => {
-    
     // Form Submit
     $(".challenges-form").submit((event) => {
       event.preventDefault();
 
       const challengeType = $(".challenge-type").val();
+      const rating = $(".challenge-rating").val();
       const challenge = $(".challenge-input").val();
 
       $.ajax({
         url: `/api/challenges/${challengeType}`,
         method: "POST",
         contentType: "application/json",
-        data: JSON.stringify({ challenge }),
+        data: JSON.stringify({ challenge, rating }),
         success: function (data) {
           createChallenge(data);
         },
@@ -210,7 +234,16 @@
 
     // Create Challenges
     const createChallenge = (challenge) => {
-      const challengeDiv = $("<div></div>").appendTo(".challenges");
+      const ratingColour =
+        challenge.rating === "PG"
+          ? "#2ecc71"
+          : challenge.rating === "R"
+          ? "#e74c3c"
+          : "#5865f2"; // default
+
+      const challengeDiv = $(
+        `<div style="border-left: 4px solid ${ratingColour};"></div>`
+      ).appendTo(".challenges");
       const description = $("<p></p>")
         .text(challenge.challenge)
         .appendTo(challengeDiv);
@@ -226,7 +259,6 @@
 
       // Edit Button Handler
       deleteBtn.on("click", () => {
-
         deleteBtn.prop("disabled", true);
         editBtn.prop("disabled", true);
 
@@ -277,8 +309,8 @@
       success: (data) => {
         $(".loading").removeClass("loading").addClass("challenges");
 
-        if (data && data.challenges.length > 0) {
-          data.challenges.forEach((challenge) => {
+        if (data && data.length > 0) {
+          data.forEach((challenge) => {
             createChallenge(challenge);
           });
         } else {
