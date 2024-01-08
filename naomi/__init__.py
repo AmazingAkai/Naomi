@@ -1,19 +1,22 @@
 from __future__ import annotations
 
 import os
+from json import JSONDecodeError
 from typing import TYPE_CHECKING
 
 import beanie
 from authlib.integrations.starlette_client import OAuth
 from httpx import AsyncClient
 from motor.motor_asyncio import AsyncIOMotorClient
+from orjson import JSONDecodeError as ORJSONDecodeError
+from pydantic_core import ValidationError
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from starlette.applications import Starlette
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.routing import Mount
 from starlette.staticfiles import StaticFiles
-from starlette.status import HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
 from starlette.templating import Jinja2Templates
 
 from naomi.models import document_models
@@ -86,9 +89,22 @@ class Naomi(Starlette):
         return self.templates.TemplateResponse(request, "not-found.html", status_code=HTTP_404_NOT_FOUND)
 
     def handle_internal_server_error(self, request: Request, exception: Exception) -> Response:
-        if request.method != "GET":
-            return ORJSONResponse({"error": "500: Internal Server Error"}, status_code=HTTP_500_INTERNAL_SERVER_ERROR)
-        return self.templates.TemplateResponse(request, "error.html", status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+        if isinstance(
+            exception,
+            (
+                JSONDecodeError,
+                ORJSONDecodeError,
+                ValidationError,
+                KeyError,
+                ValueError,
+                TypeError,
+            ),
+        ):
+            return ORJSONResponse({"error": "400: Bad Request"}, HTTP_400_BAD_REQUEST)
+        else:
+            if request.method != "GET":
+                return ORJSONResponse({"error": "500: Internal Server Error"}, HTTP_500_INTERNAL_SERVER_ERROR)
+            return self.templates.TemplateResponse(request, "error.html", status_code=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 app = Naomi()

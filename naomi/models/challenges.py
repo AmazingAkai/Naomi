@@ -10,7 +10,7 @@ class Challenge(Document):
     type: Literal["truth", "dare", "wyr"]
     rating: Literal["PG", "PG13", "R"]
     challenge: str
-    created_at: datetime = datetime.utcnow()
+    created_at: datetime
 
     class Settings:
         name = "challenges"

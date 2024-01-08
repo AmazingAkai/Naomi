@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from starlette.datastructures import UploadFile
@@ -77,7 +78,7 @@ async def add_action(request: Request) -> Response:
     id = int(total) + 1 if total else 1
 
     content = await file.read()
-    document = await Action(id=id, type=type, data=content).create()
+    document = await Action(id=id, type=type, data=content, created_at=datetime.utcnow()).create()
 
     return ORJSONResponse(document.to_dict(request), status_code=HTTP_201_CREATED)
 

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import random
+from datetime import datetime
 from typing import TYPE_CHECKING
 
+import orjson
 from beanie.operators import In
 from starlette.exceptions import HTTPException
 from starlette.responses import Response
@@ -24,9 +26,9 @@ async def challenges_get(request: Request) -> Response:
     if challenge_type not in ("truth", "dare", "wyr"):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="400: Bad Request")
 
-    ratings = request.path_params.get("rating", ["PG", "PG13"])
+    ratings = orjson.loads(request.query_params.get("rating", '["PG", "PG13"]'))
     for rating in ratings:
-        if not str(rating) in ("PG", "PG13", "R"):
+        if not rating in ("PG", "PG13", "R"):
             raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="400: Bad Request")
 
     challenges = await Challenge.find_many(Challenge.type == challenge_type, In(Challenge.rating, ratings)).to_list()
@@ -55,15 +57,12 @@ async def add_challenge(request: Request) -> Response:
     if not challenge_type or challenge_type not in ("truth", "dare", "wyr"):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="400: Bad Request")
 
-    try:
-        data = await request.json()
-        ChallengePydantic(**data)
-    except Exception:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="400: Bad Request")
+    data = await request.json()
+    ChallengePydantic(**data)
 
     total_challenges = await Challenge.find().max(Challenge.id)  # type: ignore
     id = int(total_challenges) + 1 if total_challenges else 1
-    challenge = await Challenge(id=id, type=challenge_type, **data).create()
+    challenge = await Challenge(id=id, type=challenge_type, created_at=datetime.utcnow(), **data).create()
 
     return ORJSONResponse(challenge.to_dict(), status_code=HTTP_201_CREATED)
 
@@ -88,11 +87,8 @@ async def update_challenge(request: Request) -> Response:
     if challenge is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="404: Not Found")
 
-    try:
-        data = await request.json()
-        challenge_data = ChallengePydantic(**data, rating=challenge.rating)
-    except Exception:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="400: Bad Request")
+    data = await request.json()
+    challenge_data = ChallengePydantic(**data, rating=challenge.rating)
 
     await challenge.set({Challenge.challenge: challenge_data.challenge})
     return Response(status_code=HTTP_204_NO_CONTENT)

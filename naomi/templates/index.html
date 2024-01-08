@@ -1,21 +1,170 @@
-{% extends "base.html" %} 
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <style>
-  .container {
-    display: grid;
-    place-items: center;
-    min-height: 75vh;
+  {# Hero Section #}
+
+  .hero {
+    padding: 8rem 5rem;
+    text-align: center;
+    user-select: none;
   }
-  .info {
-    font-size: 1.6rem;
+
+  .hero h2 {
+    font-size: 6rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero p,
+  .btn-get-started {
+    font-size: 2.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .hero h2 {
+      font-size: 4rem;
+    }
+    .hero p,
+    .btn-get-started {
+      font-size: 1.5rem;
+    }
+  }
+
+  .btn-get-started {
+    margin-top: 2rem;
+  }
+
+  .btn-get-started a {
+    background-color: var(--button-colour);
+    color: var(--text-colour);
+    text-decoration: none;
+    padding: 0.85rem 1.5rem;
+    font-size: 1.5rem;
+    transition: background-color 0.3s ease-in-out;
+    border-radius: 0.3rem;
+    border: none;
+  }
+
+  .btn-get-started a:hover {
+    cursor: pointer;
+    opacity: 0.7;
+  }
+
+  {# Getting Started Section #}
+
+  .get-started {
+    padding: 8rem 5rem;
+  }
+
+  .get-started h3 {
+    font-size: 5rem;
+    text-align: center;
+  }
+
+  .get-started h5 {
+    font-size: 2rem;
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+
+  .code-block {
+    background-color: #272822;
+    border-radius: 4px;
+    align-items: center;
+    justify-content: space-between;
+    display: flex;
+    font-size: 1.5rem;
+    margin-bottom: 3rem;
+
+  }
+
+  .copy-to-clipboard {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-colour);
+    font-size: 1.5rem;
+    margin-right: 2rem;
+    cursor: pointer;
+  }
+
+  .code-block:hover > .copy-to-clipboard {
+    display: block;
   }
 </style>
-<div class="container">
-  {% if request.session.get('user') %}
-  <div class="info">Hey {{request.session['user']['name']}}</div>
-  {% else %}
-  <div class="info">Please Log In</div>
-  {% endif %}
-</div>
+
+<section class="hero">
+  <h2>Naomi</h2>
+  <p>
+    Naomi, an innovative API, offers access to truth or dare, would you rather,
+    and social action GIFs.
+  </p>
+  <p>
+    Enhance user engagement and create interactive experiences effortlessly with
+    Naomi.
+  </p>
+  <div class="btn-get-started"><a href="#get-started">Get Started</a></div>
+</section>
+
+<section class="get-started" id="get-started">
+  <h3>Get Started</h3>
+  {# Get A Truth #}
+  <h5 class="code-title">Get A Truth</h5>
+  <div class="code-block">
+    <pre><code class="language-bash">curl -X GET -G '{{ request.base_url }}api/challenges/truth'</code></pre>
+    <button class="copy-to-clipboard">
+      <i class="fa-regular fa-clipboard"></i>
+      <i class="fa-solid fa-circle-check"></i>
+    </button>
+  </div>
+  {# Get A Dare #}
+  <h5 class="code-title">Get A Dare Of Any Rating</h5>
+  <div class="code-block">
+    <pre><code class="language-bash">curl -X GET -G '{{ request.base_url }}api/challenges/dare' --data-urlencode 'rating=["PG", "PG13", "R"]'</code></pre>
+    <button class="copy-to-clipboard">
+      <i class="fa-regular fa-clipboard"></i>
+      <i class="fa-solid fa-circle-check"></i>
+    </button>
+  </div>
+  {# Get A WouldYouRather #}
+  <h5 class="code-title">Get A Would You Rather Of PG Rating</h5>
+  <div class="code-block">
+    <pre><code class="language-bash">curl -X GET -G '{{ request.base_url }}api/challenges/wyr' --data-urlencode 'rating=["PG"]'</code></pre>
+    <button class="copy-to-clipboard">
+      <i class="fa-regular fa-clipboard"></i>
+      <i class="fa-solid fa-circle-check"></i>
+    </button>
+  </div>
+  {# Get A WouldYouRather #}
+  <h5 class="code-title">Get A Hugging GIF</h5>
+  <div class="code-block">
+    <pre><code class="language-bash">curl -X GET -G '{{ request.base_url }}api/actions/hug'</code></pre>
+    <button class="copy-to-clipboard">
+      <i class="fa-regular fa-clipboard"></i>
+      <i class="fa-solid fa-circle-check"></i>
+    </button>
+  </div>
+</section>
+
+<script>
+  $(document).ready(() => {
+    $('.fa-circle-check').hide();
+
+    $(".copy-to-clipboard").click(function () {
+      var textToCopy = $(this).prev().find("code").text().trim();
+
+      // Copy text to clipboard
+      navigator.clipboard
+        .writeText(textToCopy)
+        .then(() => {
+          $(this).find(".fa-circle-check").show();
+          $(this).find(".fa-clipboard").hide();
+
+        })
+        .catch(function (err) {
+          console.error("Error copying text to clipboard: ", err);
+        });
+    });
+  });
+</script>
+
 {% endblock %}

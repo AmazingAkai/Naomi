@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Naomi</title>
 
+    <meta
+      property="og:title"
+      content="Naomi: Truth or Dare, Would You Rather, and Social Action GIFs API"
+    />
+    <meta
+      property="og:description"
+      content="Naomi is an API providing access to truth or dare, would you rather, and social action GIFs. Easily integrate these interactive features into your applications."
+    />
+    <meta property="og:url" content="{{ request.base_url }}" />
+    <meta
+      property="og:image"
+      content="{{ url_for('static', path='/img/favicon.png') }}"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Naomi API" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Naomi: Truth or Dare, Would You Rather, and Social Action GIFs API"
+    />
+    <meta
+      name="twitter:description"
+      content="Naomi is an API providing access to truth or dare, would you rather, and social action GIFs. Easily integrate these interactive features into your applications."
+    />
+    <meta
+      name="twitter:image"
+      content="{{ url_for('static', path='/img/favicon.png') }}"
+    />
+
+    <link rel="icon" href="{{ url_for('static', path='/img/favicon.png') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,11 +45,17 @@
       href="{{ url_for('static', path='/css/style.css') }}"
       rel="stylesheet"
     />
+    <link
+      href="{{ url_for('static', path='/css/prism.css') }}"
+      rel="stylesheet"
+    />
+
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script
       src="https://kit.fontawesome.com/3e458b476d.js"
       crossorigin="anonymous"
     ></script>
+    <script src="{{ url_for('static', path='/js/prism.js') }}"></script>
   </head>
 
   <body>
