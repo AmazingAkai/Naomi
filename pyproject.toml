@@ -6,7 +6,7 @@ authors = ["AmazingAkai <akai.is.amazing@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 uvicorn = "^0.25.0"
 starlette = "^0.34.0"
 orjson = "^3.9.10"
